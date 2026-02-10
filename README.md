@@ -54,4 +54,9 @@ The application uses **CSR** powered by **Vite** for maximum developer velocity 
 
 ---
 
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](file:///c:/Users/91809/Downloads/o8m-giakaa-cms/LICENSE) file for details.
+
+---
+
 **Developed by**: Antigravity (AI Assistant) for o8m Labs Internship.
