@@ -19,7 +19,7 @@ const AdminPanel = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const endpoint = activeTab === 'hero' ? '/api/hero' : '/api/blogs';
+            const endpoint = activeTab === 'hero' ? '/hero' : '/blogs';
             const res = await api.get(endpoint);
             if (activeTab === 'hero') setSlides(res.data.data);
             else setBlogs(res.data.data);
