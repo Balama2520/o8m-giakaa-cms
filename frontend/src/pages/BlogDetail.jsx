@@ -37,7 +37,8 @@ const BlogDetail = () => {
         </div>
     );
 
-    const canonicalUrl = `http://localhost:5173/blog/${slug}`;
+    const siteUrl = import.meta.env.VITE_SITE_URL || 'http://localhost:5173';
+    const canonicalUrl = `${siteUrl}/blog/${slug}`;
 
     return (
         <div className="bg-white min-h-screen pb-40">

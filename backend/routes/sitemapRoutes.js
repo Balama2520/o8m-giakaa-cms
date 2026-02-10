@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   try {
     const blogs = await Blog.find({ status: 'published' }).select('slug updatedAt');
 
-    const baseUrl = 'http://localhost:5173'; // Should be production URL in real app
+    const baseUrl = process.env.VITE_SITE_URL || 'http://localhost:5173';
 
     let xml = '<?xml version="1.0" encoding="UTF-8"?>';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';

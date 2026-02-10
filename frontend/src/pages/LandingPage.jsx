@@ -107,6 +107,7 @@ const LandingPage = () => {
                                 <img
                                     src={slides[currentIndex].mediaUrl}
                                     alt="Hero Content"
+                                    loading="lazy"
                                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                                 />
                             ) : (
