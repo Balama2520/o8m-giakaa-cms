@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Plus, Trash, Edit, Save, X, Layout, FileText, CheckCircle, Circle, ArrowUp, ArrowDown } from 'lucide-react';
@@ -20,7 +20,7 @@ const AdminPanel = () => {
         setLoading(true);
         try {
             const endpoint = activeTab === 'hero' ? '/api/hero' : '/api/blogs';
-            const res = await axios.get(`http://localhost:5000${endpoint}`);
+            const res = await api.get(endpoint);
             if (activeTab === 'hero') setSlides(res.data.data);
             else setBlogs(res.data.data);
             setLoading(false);
@@ -39,11 +39,11 @@ const AdminPanel = () => {
         e.preventDefault();
         try {
             const url = activeTab === 'hero'
-                ? `http://localhost:5000/api/hero/${editingId === 'new' ? '' : editingId}`
-                : `http://localhost:5000/api/blogs/${editingId === 'new' ? '' : editingId}`;
+                ? `/hero/${editingId === 'new' ? '' : editingId}`
+                : `/blogs/${editingId === 'new' ? '' : editingId}`;
 
             const method = editingId === 'new' ? 'post' : 'put';
-            await axios[method](url, formData);
+            await api[method](url, formData);
             setEditingId(null);
             fetchData();
         } catch (err) {
@@ -54,8 +54,8 @@ const AdminPanel = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this item?')) {
             try {
-                const endpoint = activeTab === 'hero' ? `/api/hero/${id}` : `/api/blogs/${id}`;
-                await axios.delete(`http://localhost:5000${endpoint}`);
+                const endpoint = activeTab === 'hero' ? `/hero/${id}` : `/blogs/${id}`;
+                await api.delete(endpoint);
                 fetchData();
             } catch (err) {
                 alert('Delete failed');

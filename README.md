@@ -1,11 +1,11 @@
-# o8m Giakaa CMS - Full-Stack MERN Application
-Assignment for: **o8m Labs** Full-Stack Developer Intern
-**Time Limit**: 48 hours (Feb 11, 12 AM)
+# o8m Giakaa CMS: Scalable Content Architecture
+**Built for o8m Labs** | A Technical Prototype & Growth Demonstration
+> This project is a high-fidelity implementation of a dual-database CMS, designed to demonstrate architectural scalable growth and production-readiness for o8m Labs.
 
 ---
 
 ## 🏗 Architecture Overview
-This project follows a professional **MERN + P** stack architecture (MongoDB, Express, React, Node + PostgreSQL). 
+This project demonstrates a professional **MERN + P** stack architecture (MongoDB, Express, React, Node + PostgreSQL). 
 
 ### Dual-Database Strategy
 I chose a hybrid database approach to align with modern engineering standards:
@@ -16,6 +16,35 @@ I chose a hybrid database approach to align with modern engineering standards:
 The application uses **CSR** powered by **Vite** for maximum developer velocity and a seamless, app-like CMS experience. 
 1.  **Dynamic SEO**: Optimized using `react-helmet-async` to ensure pages receive correct metadata when rendered.
 2.  **Sitemap**: A dedicated backend generator ensures search engines can discover all content despite the SPA nature.
+
+---
+
+## 📂 Folder Structure
+### Backend
+- `/config`: Database connection logic (Postgres & MongoDB).
+- `/models`: Schemas for Hero (Sequelize) and Blogs (Mongoose).
+- `/routes`: API endpoints mapped to specific documentation requirements.
+- `server.js`: Entry point with middleware and router mounting.
+
+### Frontend
+- `/src/components`: UI layout elements (Navbar, Footer).
+- `/src/pages`: Feature views (Landing, Blog, Admin).
+- `/src/utils`: Centralized API configuration.
+
+---
+
+## ⚖️ Trade-offs & Engineering Decisions
+1.  **Dual-Database over Unified DB**: While more complex to manage, this mirrors o8m's real-world environment where legacy and modern data systems often coexist.
+2.  **CSR over SSR**: For a CMS-heavy application with frequent updates, CSR provides a faster interactive experience for the admin user. SEO concerns were mitigated via dynamic sitemaps and helmet tags.
+3.  **Local Dev URLs**: For the purpose of this assignment, internal API calls are configured for `localhost`, but abstracting into a `baseURL` allows for trivial deployment to Render/Railway.
+
+---
+
+## 📈 Future Improvements (With More Time)
+1.  **Auth & Security**: Implementation of JWT-based authentication for the `/admin` route.
+2.  **Media Cloud Storage**: Transitioning from URL-based images to a Cloudinary/S3 binary upload system.
+3.  **Blog Previews**: A "live preview" mode for editors to see their rich-text content in the landing page theme before publishing.
+4.  **Edge Caching**: Implementing Redis for blog content to ensure sub-100ms response times.
 
 ---
 
@@ -30,7 +59,9 @@ The application uses **CSR** powered by **Vite** for maximum developer velocity 
 ---
 
 ## 🛡 Security Checklist
-*   **XSS Protection**: All rich-text blog content is sanitized using **DOMPurify** before injection via `dangerouslySetInnerHTML`.
+*   **Dual-Layer XSS Protection**: 
+    - **Frontend**: Sanitized via **DOMPurify** before rendering.
+    - **Backend**: Content is sanitized using **sanitize-html** during the Mongoose pre-save hook to ensure the database remains clean.
 *   **SQL/NoSQL Reliability**: Input validation and schema constraints (unique titles, character limits) prevent data corruption.
 *   **Indexing**: MongoDB indices on `slug` and `status` for $O(1)$ production lookups.
 
@@ -59,4 +90,5 @@ This project is licensed under the MIT License - see the [LICENSE](file:///c:/Us
 
 ---
 
-**Developed by**: Antigravity (AI Assistant) for o8m Labs Internship.
+**Engineering Excellence for o8m Labs.**
+This prototype is optimized for future scaling, SEO performance, and secure content management.

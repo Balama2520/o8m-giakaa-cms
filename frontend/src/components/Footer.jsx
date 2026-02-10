@@ -50,7 +50,7 @@ const Footer = () => {
 
                 <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="text-slate-500 text-xs font-medium tracking-wider">
-                        &copy; {new Date().getFullYear()} GIAKAA IT SERVICES. BUILT FOR THE AI ERA.
+                        &copy; {new Date().getFullYear()} o8m Giakaa CMS | Built as a Technical Prototype for o8m Labs.
                     </div>
                     <div className="flex gap-8 text-xs font-bold text-slate-500 tracking-widest uppercase">
                         <span className="hover:text-primary cursor-pointer transition-colors">LinkedIn</span>

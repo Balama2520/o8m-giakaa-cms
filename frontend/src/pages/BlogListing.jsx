@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, ArrowRight } from 'lucide-react';
@@ -11,7 +11,7 @@ const BlogListing = () => {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/blogs?status=published');
+                const res = await api.get('/blogs?status=published');
                 setBlogs(res.data.data);
                 setLoading(false);
             } catch (err) {

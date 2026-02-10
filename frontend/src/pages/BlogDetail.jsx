@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import DOMPurify from 'dompurify';
 import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Clock, Share2 } from 'lucide-react';
@@ -13,7 +12,7 @@ const BlogDetail = () => {
     useEffect(() => {
         const fetchBlog = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/blogs/${slug}`);
+                const res = await api.get(`/blogs/${slug}`);
                 setBlog(res.data.data);
                 setLoading(false);
             } catch (err) {

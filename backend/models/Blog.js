@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const sanitizeHtml = require('sanitize-html');
 
 const BlogSchema = new mongoose.Schema({
   title: {
@@ -40,9 +41,20 @@ const BlogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Create blog slug from the title
-BlogSchema.pre('save', function(next) {
+// Create blog slug from the title and sanitize content
+BlogSchema.pre('save', function (next) {
   this.slug = slugify(this.title, { lower: true });
+
+  if (this.content) {
+    this.content = sanitizeHtml(this.content, {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'span', 'div']),
+      allowedAttributes: {
+        ...sanitizeHtml.defaults.allowedAttributes,
+        '*': ['style', 'class'],
+        'img': ['src', 'alt']
+      }
+    });
+  }
   next();
 });
 

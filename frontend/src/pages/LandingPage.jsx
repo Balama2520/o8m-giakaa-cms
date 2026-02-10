@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { ChevronRight, ArrowRight, Shield, Zap, Database, ChevronLeft, Globe, TrendingUp, Cpu, Mail, Phone, MapPin } from 'lucide-react';
 
 const LandingPage = () => {
@@ -10,7 +10,7 @@ const LandingPage = () => {
     useEffect(() => {
         const fetchSlides = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/hero');
+                const res = await api.get('/hero');
                 setSlides(res.data.data.filter(s => s.isActive));
                 setLoading(false);
             } catch (err) {
