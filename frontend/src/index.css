@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme {
+    --color-primary: #0066ff;
+    --color-secondary: #64748b;
+    --color-dark: #0f172a;
+    --color-light: #f8fafc;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    @apply bg-slate-50 text-slate-900;
+}
+
+/* Custom Utilities */
+.btn-primary {
+    @apply bg-[var(--color-primary)] text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all;
+}
+
+.section {
+    @apply py-20;
+}
+
+.container {
+    @apply max-w-[1200px] mx-auto px-4;
+}
