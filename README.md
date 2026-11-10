@@ -1,6 +1,6 @@
 # o8m Giakaa CMS: Scalable Content Architecture
 **Built for o8m Labs** | A Technical Prototype & Growth Demonstration
-> This project is a high-fidelity implementation of a dual-database CMS, designed to demonstrate architectural scalable growth and production-readiness for o8m Labs.
+> This project is a high-fidelity implementation of a dual-database CMS, designed to demonstrate architectural scalability and production-readiness for o8m Labs.
 
 ---
 
@@ -9,8 +9,8 @@ This project demonstrates a professional **MERN + P** stack architecture (MongoD
 
 ### Dual-Database Strategy
 I chose a hybrid database approach to align with modern engineering standards:
-*   **PostgreSQL (Hero Slides)**: Structured data like slider settings benefit from Postgres' strict schema enforcement. I used **Sequelize ORM** for synchronization and ACID compliance.
-*   **MongoDB (Blogs)**: Document-based storage is ideal for blogs, where JSON-like structures naturally handle varied content and SEO metadata. I used **Mongoose** for efficient document modeling.
+*   **PostgreSQL (Hero Slides)**: Structured data like slider settings benefits from Postgres' strict schema enforcement. I used **Sequelize ORM** for synchronisation and ACID compliance.
+*   **MongoDB (Blogs)**: Document-based storage is ideal for blogs, where JSON-like structures naturally handle varied content and SEO metadata. I used **Mongoose** to model documents efficiently.
 
 ### Rendering Strategy: CSR (Client-Side Rendering)
 The application uses **CSR** powered by **Vite** for maximum developer velocity and a seamless, app-like CMS experience. 
@@ -29,14 +29,14 @@ The application uses **CSR** powered by **Vite** for maximum developer velocity 
 ### Frontend
 - `/src/components`: UI layout elements (Navbar, Footer).
 - `/src/pages`: Feature views (Landing, Blog, Admin).
-- `/src/utils`: Centralized API configuration.
+- `/src/utils`: Centralised API configuration.
 
 ---
 
 ## ⚖️ Trade-offs & Engineering Decisions
 1.  **Dual-Database over Unified DB**: While more complex to manage, this mirrors o8m's real-world environment where legacy and modern data systems often coexist.
 2.  **CSR over SSR**: For a CMS-heavy application with frequent updates, CSR provides a faster interactive experience for the admin user. SEO concerns were mitigated via dynamic sitemaps and helmet tags.
-3.  **Local Dev URLs**: For the purpose of this assignment, internal API calls are configured for `localhost`, but abstracting into a `baseURL` allows for trivial deployment to Render/Railway.
+3.  **Local Dev URLs**: For this assignment, internal API calls are configured for `localhost`, but abstracting into a `baseURL` allows for trivial deployment to Render/Railway.
 
 ---
 
@@ -53,17 +53,17 @@ The application uses **CSR** powered by **Vite** for maximum developer velocity 
 *   **Meta Tags**: Unique `title`, `description`, `link[rel="canonical"]`, and **Open Graph (OG)** tags implemented for every blog post.
 *   **Performance**: 
     *   **Lazy Loading**: Images use native `loading="lazy"` to optimize initial paint.
-    *   **Vite Optimization**: Used Vite for superior bundle splitting and ESM-based dev performance.
-*   **Accessibility**: High color contrast using Tailwind's `slate` palette and clear typography.
+    *   **Vite Optimisation **: Used Vite for superior bundle splitting and ESM-based dev performance.
+*   **Accessibility**: High colour contrast using Tailwind's `slate` palette and clear typography.
 
 ---
 
 ## 🛡 Security Checklist
 *   **Dual-Layer XSS Protection**: 
     - **Frontend**: Sanitized via **DOMPurify** before rendering.
-    - **Backend**: Content is sanitized using **sanitize-html** during the Mongoose pre-save hook to ensure the database remains clean.
+    - **Backend**: Content is sanitised using ** sanitise-html ** during the Mongoose pre-save hook to ensure the database remains clean.
 *   **SQL/NoSQL Reliability**: Input validation and schema constraints (unique titles, character limits) prevent data corruption.
-*   **Indexing**: MongoDB indices on `slug` and `status` for $O(1)$ production lookups.
+*   **Indexing**: MongoDB indexes on `slug` and `status` for $O(1)$ production lookups.
 
 ---
 
@@ -80,7 +80,7 @@ The application uses **CSR** powered by **Vite** for maximum developer velocity 
 - [x] **Blog CMS**: CRUD, Draft/Published state, Rich-Text (Quill), SEO meta fields.
 - [x] **SEO**: Friendly URLs, Dynamic Meta, OG Tags, Dynamic Sitemap.
 - [x] **Architecture**: Folder separation, Dual-DB design, Modular React.
-- [x] **Performance**: Lazy loading, minimized re-renders, XSS sanitization.
+- [x] **Performance**: Lazy loading, minimised re-renders, XSS sanitisation.
 - [x] **Bonus**: Rich-text editor, multi-database, dynamic sitemap, active/inactive workflow.
 
 ---
