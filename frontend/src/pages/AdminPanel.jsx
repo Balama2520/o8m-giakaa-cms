@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import api from '../utils/api';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -12,23 +12,23 @@ const AdminPanel = () => {
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({});
 
-    useEffect(() => {
-        fetchData();
-    }, [activeTab]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             const endpoint = activeTab === 'hero' ? '/hero' : '/blogs';
             const res = await api.get(endpoint);
             if (activeTab === 'hero') setSlides(res.data.data);
             else setBlogs(res.data.data);
-            setLoading(false);
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            console.error('Failed to load CMS content:', error);
+        } finally {
             setLoading(false);
         }
-    };
+    }, [activeTab]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const handleEdit = (item) => {
         setEditingId(item._id || item.id);
