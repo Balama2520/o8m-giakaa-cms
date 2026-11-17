@@ -16,14 +16,23 @@ app.use(cors({
     credentials: true
 }));
 
-app.get('/health', (_req, res) => {
-    const mongoReady = mongoose.connection.readyState === 1;
-    const postgresReady = Boolean(sequelize.authenticate);
-    const ready = mongoReady && postgresReady;
-    res.status(ready ? 200 : 503).json({
-        status: ready ? 'ok' : 'degraded',
-        dependencies: { mongodb: mongoReady ? 'connected' : 'disconnected' }
-    });
+app.get('/health', async (_req, res) => {
+    try {
+        await Promise.all([mongoose.connection.db.admin().ping(), sequelize.authenticate()]);
+        res.status(200).json({
+            status: 'ok',
+            dependencies: { mongodb: 'connected', postgresql: 'connected' }
+        });
+    } catch (err) {
+        console.error('Health check failed:', err.message);
+        res.status(503).json({
+            status: 'degraded',
+            dependencies: {
+                mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+                postgresql: 'unknown'
+            }
+        });
+    }
 });
 
 app.use('/api/hero', require('./routes/heroRoutes'));
