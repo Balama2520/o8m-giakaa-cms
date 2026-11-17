@@ -2,21 +2,21 @@ const express = require('express');
 const router = express.Router();
 const HeroSlide = require('../models/HeroSlide');
 
-// @desc    Get all hero slides
-// @route   GET /api/hero
+// Public endpoint: inactive slides must never be exposed.
 router.get('/', async (req, res) => {
     try {
         const slides = await HeroSlide.findAll({
+            where: { isActive: true },
             order: [['display_order', 'ASC']]
         });
         res.status(200).json({ success: true, data: slides });
     } catch (err) {
-        res.status(400).json({ success: false, error: err.message });
+        console.error('Failed to retrieve hero slides:', err);
+        res.status(500).json({ success: false, error: 'Unable to retrieve hero slides' });
     }
 });
 
-// @desc    Create a hero slide
-// @route   POST /api/hero
+// NOTE: These mutation routes still require authentication middleware before production use.
 router.post('/', async (req, res) => {
     try {
         const slide = await HeroSlide.create(req.body);
@@ -26,8 +26,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// @desc    Update a hero slide
-// @route   PUT /api/hero/:id
 router.put('/:id', async (req, res) => {
     try {
         const slide = await HeroSlide.findByPk(req.params.id);
@@ -41,8 +39,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// @desc    Delete a hero slide
-// @route   DELETE /api/hero/:id
 router.delete('/:id', async (req, res) => {
     try {
         const slide = await HeroSlide.findByPk(req.params.id);
@@ -52,7 +48,8 @@ router.delete('/:id', async (req, res) => {
         await slide.destroy();
         res.status(200).json({ success: true, data: {} });
     } catch (err) {
-        res.status(400).json({ success: false, error: err.message });
+        console.error('Failed to delete hero slide:', err);
+        res.status(500).json({ success: false, error: 'Unable to delete hero slide' });
     }
 });
 
