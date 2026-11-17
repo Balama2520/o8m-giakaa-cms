@@ -43,7 +43,7 @@ const BlogSchema = new mongoose.Schema({
 
 // Create blog slug from the title and sanitize content
 BlogSchema.pre('save', function (next) {
-  this.slug = slugify(this.title, { lower: true });
+  this.slug = slugify(this.title, { lower: true, strict: true });
 
   if (this.content) {
     this.content = sanitizeHtml(this.content, {

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../utils/api';
 import DOMPurify from 'dompurify';
@@ -10,17 +11,23 @@ const BlogDetail = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchBlog = async () => {
             try {
-                const res = await api.get(`/blogs/${slug}`);
+                const res = await api.get(`/blogs/${slug}`, { signal: controller.signal });
                 setBlog(res.data.data);
-                setLoading(false);
             } catch (err) {
-                console.error('Error fetching blog', err);
-                setLoading(false);
+                if (err.name !== 'CanceledError') {
+                    console.error('Error fetching blog', err);
+                }
+            } finally {
+                if (!controller.signal.aborted) setLoading(false);
             }
         };
+
         fetchBlog();
+        return () => controller.abort();
     }, [slug]);
 
     if (loading) return (
@@ -37,25 +44,22 @@ const BlogDetail = () => {
         </div>
     );
 
-    const siteUrl = import.meta.env.VITE_SITE_URL || 'http://localhost:5173';
+    const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
     const canonicalUrl = `${siteUrl}/blog/${slug}`;
 
     return (
         <div className="bg-white min-h-screen pb-40">
             <Helmet>
                 <title>{blog.metaTitle || blog.title} | o8m Giakaa CMS</title>
-                <meta name="description" content={blog.metaDescription} />
+                <meta name="description" content={blog.metaDescription || ''} />
                 <link rel="canonical" href={canonicalUrl} />
-
-                {/* Open Graph Tags */}
                 <meta property="og:title" content={blog.metaTitle || blog.title} />
-                <meta property="og:description" content={blog.metaDescription} />
-                <meta property="og:image" content={blog.featuredImage} />
+                <meta property="og:description" content={blog.metaDescription || ''} />
+                <meta property="og:image" content={blog.featuredImage || ''} />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:type" content="article" />
             </Helmet>
 
-            {/* Header / Banner */}
             <div className="relative h-[60vh] w-full overflow-hidden">
                 <img
                     src={blog.featuredImage || 'https://via.placeholder.com/1600x900'}
@@ -81,7 +85,6 @@ const BlogDetail = () => {
                 </div>
             </div>
 
-            {/* Content Area */}
             <div className="container mx-auto px-4 -mt-20 relative z-10">
                 <div className="max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-20">
                     <div className="flex justify-between items-center mb-16 pb-8 border-b border-slate-100">
@@ -92,12 +95,11 @@ const BlogDetail = () => {
                                 <p className="text-xs text-slate-400">Artificial Intelligence Specialist</p>
                             </div>
                         </div>
-                        <button className="p-3 bg-slate-50 rounded-full text-slate-400 hover:text-primary transition-colors">
+                        <button type="button" onClick={() => navigator.clipboard?.writeText(window.location.href)} aria-label="Copy article link" className="p-3 bg-slate-50 rounded-full text-slate-400 hover:text-primary transition-colors">
                             <Share2 size={20} />
                         </button>
                     </div>
 
-                    {/* Rich Text Content with XSS Protection */}
                     <div
                         className="rich-text-content prose prose-slate prose-xl max-w-none text-slate-700 leading-relaxed font-serif"
                         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
