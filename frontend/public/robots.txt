@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://o8m-giakaa-cms.vercel.app/sitemap.xml

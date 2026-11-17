@@ -1,465 +1,275 @@
 # o8m Giakaa CMS
-### A Full-Stack Content Management System with Hybrid Database Architecture
+### Full-Stack Content Management System with Polyglot Persistence & Hardened Security Architecture
 
 **Built for o8m Labs** · **Technical Prototype & Engineering Demonstration**
 
+[![Continuous Integration](https://github.com/Balama2520/o8m-giakaa-cms/actions/workflows/ci.yml/badge.svg)](https://github.com/Balama2520/o8m-giakaa-cms/actions/workflows/ci.yml)
 [![Live Application](https://img.shields.io/badge/Live%20Application-Visit-blue?style=for-the-badge)](https://o8m-giakaa-cms.vercel.app/)
 [![Repository](https://img.shields.io/badge/GitHub-Source%20Code-black?style=for-the-badge&logo=github)](https://github.com/Balama2520/o8m-giakaa-cms)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**o8m Giakaa CMS** is a full-stack content management system prototype developed for o8m Labs to demonstrate modular application architecture, hybrid database integration, content workflows, and SEO-aware publishing.
+**o8m Giakaa CMS** is a full-stack content management system built for o8m Labs to demonstrate enterprise-grade modular architecture, polyglot persistence (relational + document databases), authenticated editorial workflows, and SEO-aware publishing.
 
-The application combines **React, Vite, Node.js, Express, PostgreSQL, and MongoDB** to manage two distinct content domains: structured hero-slider content and document-oriented blog content.
-
-Rather than forcing all content into one database, the system uses each database according to the characteristics of the data it manages.
+The platform combines **React 19, Vite, Tailwind CSS v4, Node.js, Express 5, PostgreSQL (Sequelize), and MongoDB (Mongoose)** to manage two distinct content domains:
+1. **Hero Slider Management:** High-integrity, ordered relational slide configurations.
+2. **Blog Article CMS:** Document-oriented, rich-text editorial publishing with SEO metadata.
 
 ---
 
 ## 1. Project Overview
 
-### The Problem
+### The Engineering Challenge
+Content-driven websites require high developer velocity without sacrificing data integrity or security. Different data domains exhibit distinct access patterns:
+* **Layout configurations** (such as homepage hero sliders) require deterministic priority ordering, active/inactive toggles, and strict relational constraints.
+* **Editorial articles** require flexible, rich-text document structures, dynamic slug generation, extensible SEO metadata, and draft/published state management.
 
-Content-driven websites need a reliable way to manage frequently changing website content without requiring developers to manually modify application code for every update.
+### The Architectural Solution
+Giakaa CMS models each domain in its natural persistence paradigm rather than forcing relational data into document stores or vice-versa:
 
-Typical requirements include:
-
-- Managing homepage banners and hero slides.
-- Creating and editing blog articles.
-- Controlling draft and published content.
-- Managing SEO metadata for individual pages.
-- Maintaining structured content and flexible document data.
-- Providing a centralized administration interface.
-
-### The Solution
-
-Giakaa CMS provides a modular content-management architecture with dedicated storage and API workflows for hero slides and blog articles.
-
-| Capability | Implementation |
-|---|---|
-| Hero slider management | PostgreSQL + Sequelize |
-| Blog management | MongoDB + Mongoose |
-| Content administration | React-based interface |
-| Backend services | Node.js + Express |
-| Rich-text editing | Quill editor |
-| SEO metadata | React Helmet Async |
-| Sitemap generation | Backend sitemap generator |
-| Content sanitisation | DOMPurify + sanitize-html |
-| Frontend build tooling | Vite |
-
-### Application
-
-**Live application:** https://o8m-giakaa-cms.vercel.app/
-
-**Source code:** https://github.com/Balama2520/o8m-giakaa-cms
+| Capability | Implementation Layer | Primary Technology |
+|---|---|---|
+| **Hero Slider Management** | Relational Persistence | PostgreSQL + Sequelize ORM |
+| **Blog & Article Management** | Document Store | MongoDB Atlas + Mongoose ODM |
+| **Authentication & RBAC** | Stateless Token Auth | JWT + bcryptjs + Rate Limiting |
+| **Administrative Dashboard** | Protected Client Portal | React 19 + ReactQuill + Tailwind CSS v4 |
+| **Content Sanitization** | Dual-Layer Neutralization | DOMPurify (Client) + sanitize-html (Backend) |
+| **SEO & Sitemap** | Dynamic Server Discovery | React Helmet Async + /sitemap.xml Generator |
+| **Deployment & SPA Routing** | Static Edge + PaaS Engine | Vercel (Frontend Rewrites) + Render (Node.js API) |
 
 ---
 
 ## 2. System Architecture
 
-The application follows a modular frontend/backend architecture with separate persistence layers for different content domains.
+The application implements a decoupled, secure client-server architecture with segregated public and administrative API boundaries:
 
 ```mermaid
 flowchart TD
-    U[Website Visitor / Administrator]
-    F[React + Vite Frontend]
-    API[Express REST API]
-    H[Hero Slide Service]
-    B[Blog Service]
-    PG[(PostgreSQL)]
-    MG[(MongoDB)]
-    SEO[SEO Metadata + Sitemap]
+    subgraph Client [Frontend - React 19 + Vite]
+        Visitor[Public Visitor] --> PublicViews[LandingPage & BlogListing & BlogDetail]
+        AdminUser[Admin Editor] --> AdminLoginView[AdminLogin Component]
+        AdminLoginView -->|Bearer JWT| AdminView[Protected AdminPanel]
+    end
 
-    U --> F
-    F --> API
-    API --> H
-    API --> B
-    H --> PG
-    B --> MG
-    B --> SEO
-    SEO --> F
+    subgraph Edge [Edge & Routing Layer]
+        VercelCDN[Vercel Edge Rewrites]
+        Robots[robots.txt]
+        SitemapRoute[/sitemap.xml & /api/sitemap]
+    end
+
+    subgraph API [Express 5 Application Engine]
+        PublicRouter[Public Routes /api/hero & /api/blogs]
+        AuthRouter[Auth Routes /api/auth/login]
+        AdminRouter[Admin Routes /api/admin/* - requireAuth]
+        HelmetMiddleware[Helmet Security Headers]
+        RateLimiter[Rate Limiting Middleware]
+    end
+
+    subgraph Storage [Polyglot Persistence Layer]
+        AdminRouter -->|Sequelize ORM| PostgresDB[(PostgreSQL - hero_slides)]
+        AdminRouter -->|Mongoose ODM| MongoDB[(MongoDB - blogs & admin_users)]
+        PublicRouter --> PostgresDB
+        PublicRouter --> MongoDB
+        SitemapRoute --> MongoDB
+    end
+
+    Visitor --> VercelCDN
+    AdminUser --> VercelCDN
+    PublicViews --> PublicRouter
+    AdminView --> AdminRouter
 ```
 
 ### Technology Stack
-
-| Layer | Technologies |
-|---|---|
-| Frontend | React.js, Vite, JavaScript |
-| UI | Tailwind CSS |
-| Backend | Node.js, Express.js |
-| Relational database | PostgreSQL |
-| Relational ORM | Sequelize |
-| Document database | MongoDB |
-| Document ODM | Mongoose |
-| Rich-text editor | Quill |
-| SEO | react-helmet-async, dynamic sitemap |
-| Security | DOMPurify, sanitize-html |
-| Deployment | Vercel frontend; backend deployment configuration should be verified separately |
+* **Frontend:** React 19, React Router v7, Vite 7, Tailwind CSS v4, Lucide React, ReactQuill, React Helmet Async, DOMPurify.
+* **Backend:** Node.js (v20+), Express 5, Sequelize 6, Mongoose 9, bcryptjs, jsonwebtoken, express-rate-limit, helmet, sanitize-html, slugify.
+* **Persistence:** PostgreSQL (ACID relational engine) + MongoDB (BSON document engine).
+* **Testing:** Node.js native test runner (`node:test`), Supertest, Vitest, Testing Library React, jsdom.
+* **CI/CD:** GitHub Actions automated lint, test, and build pipelines.
 
 ---
 
-## 3. Hybrid Database Architecture
-
-One of the central engineering decisions in this project is the use of two databases.
+## 3. Polyglot Database Architecture: Rationale & Trade-offs
 
 ### A. PostgreSQL — Hero Slider Management
+* **Table:** `hero_slides`
+* **Model:** [backend/models/HeroSlide.js](backend/models/HeroSlide.js)
+* **Rationale:** Layout sliders require strict numerical ordering (`display_order`), boolean visibility flags (`is_active`), character-bounded headlines, and transactional integrity.
+* **Configuration:** Supports both connection strings (`DATABASE_URL` with SSL for hosted cloud providers like Supabase/Neon/Render) and individual parameter fallbacks. Automatic schema sync is restricted to non-production environments to protect production data.
 
-Hero slides contain structured information with predictable fields and ordering requirements.
+### B. MongoDB — Blog Article Management
+* **Collections:** `blogs`, `adminusers`
+* **Models:** [backend/models/Blog.js](backend/models/Blog.js), [backend/models/AdminUser.js](backend/models/AdminUser.js)
+* **Rationale:** Editorial articles feature variable-length rich text, nested SEO metadata (`metaTitle`, `metaDescription`), and workflow states (`draft`, `published`). Document indexing on `{ slug: 1 }` and `{ status: 1 }` ensures fast query evaluation.
+* **Sanitization & Slugs:** Model lifecycle hooks automatically sanitize HTML via `sanitize-html` and generate strict URL slugs via `slugify` during both creation and updates.
 
-PostgreSQL was selected for this domain because it provides relational data modelling, schema constraints, and transactional operations.
-
-**Implementation:**
-- Sequelize ORM for model definition and database interaction.
-- Structured hero-slide records.
-- Priority and display-order management.
-- Active/inactive status.
-- Image and destination-link fields.
-- CRUD operations.
-
-**Why PostgreSQL?**
-
-The hero-slider domain has a relatively stable structure. A relational database provides a clear schema and consistency constraints for this information.
-
-### B. MongoDB — Blog Management
-
-Blog articles have more flexible content structures, including rich-text bodies and SEO-related fields.
-
-MongoDB was selected for this domain because its document model naturally represents nested and evolving article content.
-
-**Implementation:**
-- Mongoose schemas and models.
-- Article titles and slugs.
-- Rich-text content.
-- Draft and published states.
-- SEO title and description fields.
-- Canonical URL and Open Graph metadata.
-- Slug and status indexes.
-
-**Why MongoDB?**
-
-Blog documents can evolve independently from the structured hero-slide domain. Document-oriented storage provides flexibility for article content and metadata.
-
-### Database Responsibility
-
-| Responsibility | PostgreSQL | MongoDB |
-|---|:---:|:---:|
-| Hero slides | ✓ | |
-| Slide ordering and status | ✓ | |
-| Blog articles | | ✓ |
-| Rich-text article content | | ✓ |
-| Blog publishing state | | ✓ |
-| Blog SEO metadata | | ✓ |
-
-**Important design consideration:** These databases are separate persistence domains. The application does not rely on a distributed transaction between them.
+### Architectural Trade-off Analysis
+* **Why not a unified database?** For an enterprise prototype, dual-database architecture demonstrates polyglot persistence and isolation of concerns. 
+* **Production Reality:** Operating two distinct database connection pools and cloud providers for small workloads introduces operational complexity. For production consolidation, storing blog articles with `JSONB` columns in PostgreSQL would achieve identical document flexibility while halving infrastructure overhead.
 
 ---
 
-## 4. Core Features
+## 4. API Specification & Public/Admin Separation
 
-### 4.1 Hero Slider Management
+The system enforces strict segregation between public read APIs and authenticated administrative APIs:
 
-The hero-slider module provides administrative control over homepage slide content.
-
-**Implemented capabilities:**
-- Create new slides.
-- Retrieve existing slides.
-- Update slide information.
-- Delete slides.
-- Manage display priority and ordering.
-- Toggle active/inactive status.
-- Configure image and destination-link information.
-
-### 4.2 Blog Content Management
-
-The blog module provides a content workflow for creating and managing articles.
-
-**Implemented capabilities:**
-- Create blog posts.
-- Edit existing articles.
-- Delete articles.
-- Save articles as drafts.
-- Publish articles.
-- Manage SEO metadata.
-- Generate user-friendly article URLs.
-- Edit rich-text content through Quill.
-
-### 4.3 Rich-Text Editing
-
-The integrated Quill editor allows administrators to create formatted blog content through a visual editing interface.
-
-The editor supports structured article content without requiring administrators to write HTML manually.
-
-### 4.4 SEO-Aware Content Publishing
-
-The application includes SEO-related functionality for blog content.
-
-**Implemented capabilities:**
-- Dynamic page titles.
-- Meta descriptions.
-- Canonical URL metadata.
-- Open Graph metadata.
-- Friendly blog slugs.
-- Backend-generated sitemap.
-
-The React application uses `react-helmet-async` to manage document metadata during client-side rendering.
-
-The sitemap provides a separate discovery mechanism for published content.
-
-**Rendering consideration:** This project uses client-side rendering. Dynamic metadata and sitemap generation are implemented, but this should not be represented as equivalent to server-side rendering or a complete prerendered SEO solution.
-
----
-
-## 5. Backend Design
-
-The backend is responsible for API routing, database access, content operations, and supporting application services.
-
-### Main responsibilities
-
-1. Establish connections to PostgreSQL and MongoDB.
-2. Define and manage data models.
-3. Expose REST API endpoints.
-4. Process content creation and update operations.
-5. Apply validation and sanitisation.
-6. Support publishing workflows.
-7. Generate sitemap output.
-
-### Backend organisation
-
-```text
-backend/
-├── config/
-│   └── Database connection configuration
-├── models/
-│   ├── Hero model (Sequelize)
-│   └── Blog model (Mongoose)
-├── routes/
-│   └── REST API route definitions
-└── server.js
-```
-
-### Frontend organisation
-
-```text
-frontend/
-└── src/
-    ├── components/
-    │   ├── Navbar
-    │   └── Footer
-    ├── pages/
-    │   ├── Landing
-    │   ├── Blog
-    │   └── Admin
-    └── utils/
-        └── API configuration
-```
-
-The structure separates user-interface components, page-level functionality, API configuration, backend routes, and persistence models.
-
----
-
-## 6. Security and Data Integrity
-
-Security is an important part of a content management system because administrators can create and publish user-controlled content.
-
-### XSS Protection
-
-The project uses sanitisation at two levels:
-
-**Frontend**
-- DOMPurify sanitises HTML before rendering rich-text content.
-
-**Backend**
-- sanitize-html is used in the blog data-processing flow to sanitise stored content.
-
-This provides defence at the presentation and persistence layers.
-
-### Database Validation
-
-The application uses database model validation and schema constraints to protect content integrity.
-
-Examples include:
-- Required fields.
-- Unique blog slugs or titles where configured.
-- Character-length restrictions.
-- Structured field validation.
-
-### Indexing
-
-MongoDB indexes are configured for frequently queried blog fields such as `slug` and `status`.
-
-Indexes support efficient query execution for these access patterns. Actual performance depends on query shape, index selection, data volume, and database execution plans.
-
-### Current Security Boundary
-
-JWT-based administrator authentication and protected admin-route enforcement are identified as future improvements. The current prototype should not be considered a fully secured public administration system.
-
----
-
-## 7. Engineering Decisions and Trade-offs
-
-This project was developed with an emphasis on understanding why specific technologies and architectural patterns were selected.
-
-| Decision | Reasoning | Trade-off |
+### Public Endpoints (Unauthenticated)
+| Method | Endpoint | Description |
 |---|---|---|
-| PostgreSQL + MongoDB | Different data domains have different storage requirements | More operational complexity |
-| Sequelize + Mongoose | ORM/ODM abstractions for their respective databases | Two model systems to maintain |
-| React + Vite | Fast frontend development and interactive UI | Client-side rendering limitations |
-| Express REST APIs | Modular backend service structure | API validation and security need continued hardening |
-| Rich-text editor | Enables content creation without manual HTML | Requires careful sanitisation |
-| Dynamic sitemap | Supports content discovery | Does not replace SSR or prerendering |
+| `GET` | `/api/hero` | Retrieves **active slides only** (`isActive: true`), sorted by display priority. |
+| `GET` | `/api/blogs` | Retrieves **published articles only** (`status: 'published'`). Drafts are never exposed. |
+| `GET` | `/api/blogs/:slug` | Retrieves a single **published article** by its slug. Drafts return 404. |
+| `GET` | `/health` / `/api/health` | System health check verifying PostgreSQL and MongoDB connectivity. |
+| `GET` | `/sitemap.xml` | Dynamic XML sitemap listing published articles and core canonical URLs. |
 
-### Why not use a single database?
-
-A single database could have simplified deployment and maintenance. However, this project demonstrates how relational and document-oriented storage can be applied to separate content domains.
-
-### Why Client-Side Rendering?
-
-The application uses a Vite-powered React frontend to deliver an interactive, application-like content management experience.
-
-SEO-related metadata and sitemap generation were implemented separately. A future server-rendering or prerendering strategy would improve the completeness of the public-facing SEO architecture.
+### Administrative Endpoints (Protected by JWT Auth)
+All `/api/admin/*` routes require header `Authorization: Bearer <token>`.
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/login` | Authenticates administrator; rate-limited (max 10 attempts/15 min). |
+| `GET` | `/api/auth/me` | Returns authenticated user profile. |
+| `GET` | `/api/admin/hero` | Retrieves all slides (both active and inactive) for editorial review. |
+| `POST` | `/api/admin/hero` | Creates a hero slide with allowlist validation and URL protocol checks. |
+| `PUT` | `/api/admin/hero/:id` | Updates slide details, priority ordering, or active status. |
+| `DELETE` | `/api/admin/hero/:id` | Permanently deletes a hero slide. |
+| `GET` | `/api/admin/blogs` | Retrieves all articles (both published and drafts). |
+| `POST` | `/api/admin/blogs` | Creates article; sanitizes HTML and generates slug. |
+| `PUT` | `/api/admin/blogs/:id` | Updates article; executes sanitization and updates slug. |
+| `DELETE` | `/api/admin/blogs/:id` | Permanently deletes an article. |
 
 ---
 
-## 8. Local Development Setup
+## 5. Security Controls & Hardening
+
+1. **Authentication & Authorization:**
+   * Passwords hashed using `bcryptjs` with 10 salt rounds.
+   * Stateless, signed JSON Web Tokens (JWT) with configured expiration (`JWT_EXPIRES_IN`).
+   * Password hashes are automatically stripped from JSON outputs via schema `toJSON` overrides.
+   * Mutating routes on `/api/hero` and `/api/blogs` reject unauthenticated requests with HTTP 401.
+2. **Safe Admin Provisioning:**
+   * Public administrative registration is intentionally disabled.
+   * Admins are provisioned via secure CLI script (`npm run provision-admin`) or environment seeding.
+3. **Dual-Layer XSS Neutralization:**
+   * **Backend:** All rich-text inputs are sanitized on creation and update using `sanitize-html`, stripping `<script>`, inline event handlers (`onload`, `onerror`), and unauthorized tags.
+   * **Frontend:** Rich-text content rendered via `DOMPurify.sanitize()` before DOM injection.
+4. **Injection & URL Protocol Defenses:**
+   * **URL Validation:** All external media and CTA links are inspected with `isSafeUrl()`, strictly rejecting dangerous schemes (`javascript:`, `data:`, `vbscript:`).
+   * **NoSQL Operator Injection:** Query parameters are sanitized and allowlisted; raw query objects are never passed directly to MongoDB.
+   * **Allowlist Filtering:** Discards unlisted attributes (`role`, `isAdmin`, `__v`) before database operations.
+5. **Transport & Header Security:**
+   * Helmet middleware active across all routes (`X-Content-Type-Options: nosniff`, DNS prefetch controls).
+   * CORS restricted to configured origins (`CORS_ORIGIN`).
+   * Payload size strictly bounded to 1 MB.
+   * Error handling suppresses internal database traces and infrastructure names in production.
+
+---
+
+## 6. Local Development Setup
 
 ### Prerequisites
+* **Node.js:** v20.x or higher
+* **PostgreSQL:** Local instance on port 5432 or hosted connection URI
+* **MongoDB:** Local MongoDB or MongoDB Atlas URI
 
-Install the following:
-
-- Node.js
-- npm
-- MongoDB
-- PostgreSQL
-- Git
-
-### 1. Clone the repository
-
+### 1. Clone & Install
 ```bash
 git clone https://github.com/Balama2520/o8m-giakaa-cms.git
-
 cd o8m-giakaa-cms
 ```
 
-### 2. Configure the backend
-
+### 2. Configure Backend
 ```bash
 cd backend
 npm install
+cp .env.example .env
+```
+Edit `.env` with your database credentials and secret key:
+```env
+PORT=5000
+NODE_ENV=development
+JWT_SECRET=super_secret_jwt_key_at_least_32_chars
+CORS_ORIGIN=http://localhost:5173
+MONGO_URI=mongodb://localhost:27017/giakaa_cms
+DATABASE_URL=postgresql://postgres:password@localhost:5432/giakaa_cms
 ```
 
-Configure the database credentials and application settings in the backend environment file according to the connection configuration in the repository.
+### 3. Provision the Initial Administrator
+Run the safe provisioning CLI script:
+```bash
+npm run provision-admin admin admin@giakaa.com YourSecurePassword123!
+```
 
-Ensure both PostgreSQL and MongoDB are accessible before starting the backend.
-
-Start the backend:
-
+### 4. Start Backend Server
 ```bash
 npm start
+# Server listens on http://localhost:5000
 ```
 
-### 3. Configure the frontend
-
-Open a separate terminal:
-
+### 5. Configure & Start Frontend
+In a new terminal:
 ```bash
 cd frontend
 npm install --legacy-peer-deps
+cp .env.example .env
 npm run dev
+# Vite client runs on http://localhost:5173
 ```
 
-The frontend API configuration must point to the running backend service. The current assignment configuration uses local development API URLs.
-
-### 4. Open the application
-
-Use the local frontend URL printed by Vite in the terminal.
-
-**Note:** Exact environment variable names, database setup scripts, and runtime configuration should be taken from the current repository files. No credentials or local machine paths should be committed to GitHub.
+Navigate to `http://localhost:5173/admin` and log in with your provisioned credentials.
 
 ---
 
-## 9. Current Scope and Future Improvements
+## 7. Testing & Quality Assurance
 
-The current implementation is a technical prototype. The following items are improvements rather than claims of already completed functionality.
+The codebase features an automated test suite across backend and frontend tiers:
 
-| Area | Future enhancement |
-|---|---|
-| Authentication | JWT-based authentication and protected admin routes |
-| Authorisation | Role-based access control |
-| Media management | Cloudinary or Amazon S3 integration |
-| Blog workflow | Live article preview |
-| SEO | Server-side rendering or prerendering |
-| Caching | Redis-based content caching |
-| Reliability | Centralised logging and error monitoring |
-| Deployment | Environment-specific configuration and automated deployment |
-| Testing | Broader automated integration and end-to-end coverage |
+### Run Backend Tests (Node Test Runner + Supertest)
+```bash
+cd backend
+npm test
+```
+*Executes 26 unit and integration tests covering JWT auth, route guards, public/admin isolation, XSS sanitization, slugification, health checks, and URL validation.*
 
-### Production-hardening priorities
+### Run Frontend Tests (Vitest + React Testing Library)
+```bash
+cd frontend
+npm test
+```
+*Executes 6 component and utility tests covering authentication state, token expiration, password visibility toggles, and form validation.*
 
-Before using this system for real public administration, the highest priorities would be:
-
-1. Implement authentication and authorisation.
-2. Remove local-only API configuration and establish environment-specific service URLs.
-3. Configure secure environment-variable handling.
-4. Add API-level validation and consistent error responses.
-5. Add integration tests for both database services.
-6. Review deployment, logging, backups, and operational monitoring.
-
----
-
-## 10. What This Project Demonstrates
-
-From an engineering perspective, Giakaa CMS demonstrates practical experience in:
-
-- Full-stack application development.
-- REST API design and backend modularisation.
-- Hybrid relational and document database architecture.
-- PostgreSQL and MongoDB integration.
-- ORM and ODM-based data modelling.
-- CRUD and publishing workflows.
-- Rich-text content processing.
-- SEO-aware content management.
-- XSS mitigation and input validation.
-- Frontend/backend integration.
-- Architecture trade-offs and technical documentation.
-
-The project also demonstrates an important engineering principle:
-
-**Technology choices should follow data characteristics and application requirements, not simply the popularity of a framework or database.**
+### Run Frontend Linter & Build Verification
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+*Confirms 0 ESLint errors and verifies route-level code splitting (all bundle chunks < 260 kB).*
 
 ---
 
-## 11. Project Information
+## 8. Deployment Architecture
 
-| Field | Details |
-|---|---|
-| Project | o8m Giakaa CMS |
-| Category | Full-Stack Web Application |
-| Organisation | o8m Labs |
-| Architecture | MERN + PostgreSQL |
-| Frontend | React + Vite |
-| Backend | Node.js + Express |
-| Databases | PostgreSQL + MongoDB |
-| License | MIT |
+### Frontend: Vercel
+* Deploy the `frontend/` directory to Vercel.
+* [frontend/vercel.json](frontend/vercel.json) configures single-page application rewrites (`/(.*) -> /index.html`), preventing 404 errors on deep routes (`/blogs`, `/admin`).
+* `/sitemap.xml` requests are automatically routed to the dynamic backend sitemap.
 
-**Live Application:** https://o8m-giakaa-cms.vercel.app/
-
-**GitHub Repository:** https://github.com/Balama2520/o8m-giakaa-cms
-
-**License:** MIT
+### Backend: Render / Railway / PaaS
+* Deploy the `backend/` directory as a Node.js Web Service.
+* Configure environment variables: `DATABASE_URL`, `MONGO_URI`, `JWT_SECRET`, `CORS_ORIGIN`, `NODE_ENV=production`.
+* The server performs a dependency check on startup and exposes `/health` for uptime monitoring and zero-downtime rolling deploys.
 
 ---
 
-### Author
+## 9. Known Limitations & Architectural Notes
 
-**Bala Maneesh Ayanala**
-
-Full-Stack Developer | Applied AI Engineer | Software Developer
-
-GitHub: https://github.com/Balama2520
-
-Portfolio: https://abms-portfolio.netlify.app/
-
-LinkedIn: https://linkedin.com/in/bala-maneesh-ayanala-702582266
+1. **Client-Side Rendering (CSR) SEO:** While dynamic `<Helmet>` tags and an automated `/sitemap.xml` are active, social scrapers (such as Twitter Cards or WhatsApp preview bots) that do not execute client-side JavaScript receive an empty HTML shell. For production enterprise deployments, migrating to Next.js App Router for Server-Side Rendering (SSR) is recommended.
+2. **Media Storage:** Hero slides and blog articles currently accept direct image URLs. Integrating AWS S3 or Cloudinary with pre-signed upload URLs would streamline binary asset management.
+3. **Database Maintenance:** Hosted free-tier databases (e.g. Supabase) pause after periods of inactivity. Ensure production databases utilize non-ephemeral instances.
 
 ---
 
-*Developed as a technical prototype and architectural demonstration for o8m Labs.*
+## 10. License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Author:** Bala Maneesh Ayanala  
+*Developed for o8m Labs as a Full-Stack Technical Prototype.*

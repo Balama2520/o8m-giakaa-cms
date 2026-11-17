@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://o8m-giakaa-cms.onrender.com/sitemap.xml"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://o8m-giakaa-cms.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
